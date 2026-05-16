@@ -1,61 +1,67 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
+import OnboardingSidebar from './OnboardingSidebar';
+import Step1_Welcome from './Step1_Welcome';
+import Step2_VehicleSpecs from './Step2_VehicleSpecs';
+import Step3_LegalMedia from './Step3_LegalMedia';
+import Step4_DigitalSignature from './Step4_DigitalSignature';
+import Step5_Scheduling from './Step5_Scheduling';
 
 export default function Dashboard() {
-  // 1. Car Progress Tracker State
-  const [carProgress] = useState({
-    status: 'In Review',
-    currentStep: 2, 
-    makeModel: '2021 Porsche 911 Carrera'
+  const [currentStep, setCurrentStep] = useState(1);
+  
+  // Single global source of truth for the entire multi-page application form data
+  const [formData, setFormData] = useState({
+    // Step 1 data
+    fullName: '', phone: '', vehicleType: 'car', totalVehicles: 1,
+    // Step 2 data
+    makeModel: '', vehicleYear: '', conditionRating: 'Excellent', approximateValue: 0,
+    // Step 3 data
+    uploadedPhotos: [], uploadedDocs: [],
+    // Step 4 data
+    signatureDataUrl: '', signedName: '',
+    // Step 5 data
+    selectedDate: '', selectedTimeSlot: ''
   });
 
-  // 2. Upload Preview States
-  const [mediaPreview, setMediaPreview] = useState(null);
-  const [docFile, setDocFile] = useState(null);
-
-  // Hidden references to programmatically trigger standard file pickers on container clicks
-  const mediaInputRef = useRef(null);
-  const docInputRef = useRef(null);
-
-  // 3. Image File Picker Handler
-  const handleMediaChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setMediaPreview(reader.result); // Sets base64 string for image preview
-      };
-      reader.readAsDataURL(file);
-    }
+  // Action methods to safely update fields from subcomponents
+  const updateFields = (fields) => {
+    setFormData((prev) => ({ ...prev, ...fields }));
   };
 
-  // 4. Document File Picker Handler
-  const handleDocChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setDocFile(file); // Stores the file object descriptor
+  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 5));
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
+
+  // Step Switchboard Router
+  const renderStepComponent = () => {
+    switch (currentStep) {
+      case 1:
+        return <Step1_Welcome data={formData} update={updateFields} onNext={nextStep} />;
+      case 2:
+        return <Step2_VehicleSpecs data={formData} update={updateFields} onNext={nextStep} onPrev={prevStep} />;
+      case 3:
+        return <Step3_LegalMedia data={formData} update={updateFields} onNext={nextStep} onPrev={prevStep} />;
+      case 4:
+        return <Step4_DigitalSignature data={formData} update={updateFields} onNext={nextStep} onPrev={prevStep} />;
+      case 5:
+        return <Step5_Scheduling data={formData} update={updateFields} onPrev={prevStep} />;
+      default:
+        return <Step1_Welcome data={formData} update={updateFields} onNext={nextStep} />;
     }
   };
 
   return (
-    <div className="dashboard-container">
-      {/* Valuation Stage Track */}
-      <div className="dashboard-card">
-        <div className="card-header">
-          <div>
-            <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--gold)' }}>Active Listing</span>
-            <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '24px', marginTop: '4px' }}>{carProgress.makeModel}</h2>
-          </div>
-          <div className="status-badge">● {carProgress.status}</div>
-        </div>
-
+    <div className="onboarding-wizard-layout" style={styles.wizardWrapper}>
+      {/* Visual Stepper Breadcrumb Header spanning the top of the card row */}
+      <div className="dashboard-card" style={{ marginBottom: '24px' }}>
         <div className="stepper-track">
           {[
-            { step: 1, label: 'Identity Verified' },
-            { step: 2, label: 'Vehicle Specs' },
-            { step: 3, label: 'Legal Docs & Sign' },
-            { step: 4, label: 'Inspection Scheduled' }
+            { step: 1, label: 'Welcome & Logistics' },
+            { step: 2, label: 'Vehicle Matrix' },
+            { step: 3, label: 'Vault Media' },
+            { step: 4, label: 'Legal Execution' },
+            { step: 5, label: 'Pipeline Slot' }
           ].map((s) => (
-            <div key={s.step} className={`step-node ${carProgress.currentStep >= s.step ? 'active' : ''}`}>
+            <div key={s.step} className={`step-node ${currentStep >= s.step ? 'active' : ''}`}>
               <div className="step-circle">{s.step}</div>
               <span className="step-label">{s.label}</span>
             </div>
@@ -63,60 +69,40 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Media Vault Dropzones */}
-      <div className="dashboard-grid">
+      {/* Main Structural Grid Split (Form Steps vs Sticky Metric Sidebar) */}
+      <div style={styles.contentGrid}>
+        <div style={styles.formContainer}>
+          {renderStepComponent()}
+        </div>
         
-        {/* PANEL A: VEHICLE PHOTOS */}
-        <div className="dashboard-card">
-          <h3 style={{ fontFamily: 'Playfair Display, serif', marginBottom: '10px' }}>Vehicle Media</h3>
-          <p style={{ fontSize: '13px', color: 'var(--ink-60)', marginBottom: '15px' }}>Upload structural exterior and dashboard pictures safely.</p>
-          
-          <input 
-            type="file" 
-            accept="image/*" 
-            ref={mediaInputRef} 
-            onChange={handleMediaChange} 
-            style={{ display: 'none' }} 
-          />
-
-          <div className="dropzone-placeholder" onClick={() => mediaInputRef.current.click()}>
-            {mediaPreview ? (
-              <img 
-                src={mediaPreview} 
-                alt="Car preview" 
-                style={{ width: '100%', maxHeight: '140px', objectFit: 'contain', borderRadius: '4px' }} 
-              />
-            ) : (
-              <span>Click to choose or drag car images here</span>
-            )}
-          </div>
+        <div style={styles.sidebarContainer}>
+          <OnboardingSidebar data={formData} activeStep={currentStep} goToStep={setCurrentStep} />
         </div>
-
-        {/* PANEL B: LEGAL DOCUMENTATION */}
-        <div className="dashboard-card">
-          <h3 style={{ fontFamily: 'Playfair Display, serif', marginBottom: '10px' }}>Legal Documents</h3>
-          <p style={{ fontSize: '13px', color: 'var(--ink-60)', marginBottom: '15px' }}>Submit government-issued ID proofs & car registration papers.</p>
-          
-          <input 
-            type="file" 
-            accept=".pdf,image/*" 
-            ref={docInputRef} 
-            onChange={handleDocChange} 
-            style={{ display: 'none' }} 
-          />
-
-          <div className="dropzone-placeholder" onClick={() => docInputRef.current.click()}>
-            {docFile ? (
-              <div style={{ color: 'var(--green)', fontWeight: '500' }}>
-                📄 {docFile.name} ({(docFile.size / 1024 / 1024).toFixed(2)} MB)
-              </div>
-            ) : (
-              <span>Click to choose or drag verification PDFs here</span>
-            )}
-          </div>
-        </div>
-
       </div>
     </div>
   );
 }
+
+const styles = {
+  wizardWrapper: {
+    width: '100%',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '0 20px'
+  },
+  contentGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr) 380px',
+    gap: '30px',
+    alignItems: 'start'
+  },
+  formContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px'
+  },
+  sidebarContainer: {
+    position: 'sticky',
+    top: '40px'
+  }
+};
