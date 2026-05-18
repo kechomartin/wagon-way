@@ -9,21 +9,22 @@ import Step5_Scheduling from './Step5_Scheduling';
 export default function Dashboard() {
   const [currentStep, setCurrentStep] = useState(1);
   
-  // Single global source of truth for the entire multi-page application form data
+  // Single, master source of truth for the multi-step onboarding session
   const [formData, setFormData] = useState({
-    // Step 1 data
-    fullName: '', phone: '', vehicleType: 'car', totalVehicles: 1,
-    // Step 2 data
-    makeModel: '', vehicleYear: '', conditionRating: 'Excellent', approximateValue: 0,
-    // Step 3 data
-    uploadedPhotos: [], uploadedDocs: [],
-    // Step 4 data
-    signatureDataUrl: '', signedName: '',
-    // Step 5 data
-    selectedDate: '', selectedTimeSlot: ''
+    fullName: '',
+    phone: '',
+    // Initialized as a proper array containing an initial blank asset block
+    vehicles: [
+      { id: Date.now(), makeModel: '', vehicleYear: '', conditionRating: 'Good', mileage: '' }
+    ],
+    uploadedPhotos: [],
+    uploadedDocs: [],
+    signedName: '',
+    selectedDate: '',
+    selectedTimeSlot: ''
   });
 
-  // Action methods to safely update fields from subcomponents
+  // Action reducer method passed down to let sub-steps update the master object cleanly
   const updateFields = (fields) => {
     setFormData((prev) => ({ ...prev, ...fields }));
   };
@@ -31,7 +32,7 @@ export default function Dashboard() {
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 5));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
-  // Step Switchboard Router
+  // Multi-step switchboard router routing
   const renderStepComponent = () => {
     switch (currentStep) {
       case 1:
@@ -51,7 +52,7 @@ export default function Dashboard() {
 
   return (
     <div className="onboarding-wizard-layout" style={styles.wizardWrapper}>
-      {/* Visual Stepper Breadcrumb Header spanning the top of the card row */}
+      {/* Visual Progress Header Steps Bar */}
       <div className="dashboard-card" style={{ marginBottom: '24px' }}>
         <div className="stepper-track">
           {[
@@ -69,7 +70,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Main Structural Grid Split (Form Steps vs Sticky Metric Sidebar) */}
+      {/* Structural Split: Form Worksheets vs Sticky Right Sidebar */}
       <div style={styles.contentGrid}>
         <div style={styles.formContainer}>
           {renderStepComponent()}
