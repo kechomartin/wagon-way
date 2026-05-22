@@ -154,7 +154,6 @@ export default function ManifestSidebar({ data }) {
   );
 }
 
-// INLINE STYLES SHEET
 const styles = {
   sidebarContainer: {
     backgroundColor: '#ffffff',
