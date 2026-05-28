@@ -49,7 +49,7 @@ To replicate this environment locally, make sure you have [Node.js](https://node
 
 <h3 align="center">Secure Gateway Portal</h3>
 <p align="center">
-  <img src="./public/screenshots/login-screen.png" alt="WagonWay Login Portal" width="85%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #ebebeb;" />
+  <img src="./public/Screenshot Dashboard.png" alt="WagonWay Login Portal" width="85%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #ebebeb;" />
 </p>
 <p align="center">
   <em>The enterprise authentication interface featuring minimalist luxury styling tokens and an embedded developer sandbox credentials bypass drawer.</em>
@@ -59,7 +59,7 @@ To replicate this environment locally, make sure you have [Node.js](https://node
 
 <h3 align="center">Multi-Asset Appraisal Dashboard Workspace</h3>
 <p align="center">
-  <img src="./public/screenshots/dashboard-view.png" alt="WagonWay Core Dashboard" width="85%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #ebebeb;" />
+  <img src="../public/screenshots/dashboard-view.png" alt="WagonWay Core Dashboard" width="85%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #ebebeb;" />
 </p>
 <p align="center">
   <em>The live intake workspace utilizing a split layout: a guided procurement wizard on the left and a persistent, itemized financial ledger sidebar on the right.</em>
